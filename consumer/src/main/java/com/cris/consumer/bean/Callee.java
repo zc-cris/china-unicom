@@ -57,13 +57,14 @@ public class Callee extends AbstractHbaseBean {
      */
     @Override
     public String getRowKey() {
-        return this.regionNum + "_" + this.call1 + "_" + this.call2 + "_" + this.calltime + "_" + this.duration + "_" + this.flg;
+        return this.regionNum + "_" + this.call1 + "_" + this.calltime + "_" + this.call2 + "_" + this.duration + "_" + this.flg;
     }
 
+    @SuppressWarnings("Duplicates")
     public void setValue(String s) {
         String[] split = s.split("\t");
-        this.call1 = split[1];
-        this.call2 = split[0];
+        this.call1 = split[0];
+        this.call2 = split[1];
         this.calltime = split[2];
         this.duration = split[3];
     }

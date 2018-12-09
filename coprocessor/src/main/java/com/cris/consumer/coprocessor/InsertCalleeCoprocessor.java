@@ -49,18 +49,18 @@ public class InsertCalleeCoprocessor extends BaseRegionObserver {
     @Override
     public void postPut(ObserverContext<RegionCoprocessorEnvironment> e, Put put, WALEdit edit, Durability durability) throws IOException {
 
-        /*组装被叫用户记录的 rowkey:分区号+tell1+tell2+calltime+duration */
+        /*组装被叫用户记录的 rowkey:分区号+callee+calltime+caller+duration+被叫标识 */
         String[] split = Bytes.toString(put.getRow()).split("_");
         /*说明是添加 主叫用户记录的时候调用的该方法，则执行添加被叫用户的代码，否则不添加*/
         if (StringUtils.equals(CALLER_FLAG, split[FLAG_INDEX])) {
-            stringBuilder.append(String.valueOf(dao.genRegionNum(split[2], split[3]))).append("_").append(split[2]).
-                    append("_").append(split[1]).append("_").append(split[3]).append("_").append(split[4]).append("_0");
+            stringBuilder.append(String.valueOf(dao.genRegionNum(split[2], split[3]))).append("_").append(split[3]).
+                    append("_").append(split[2]).append("_").append(split[1]).append("_").append(split[4]).append("_0");
 
             Put calleePut = new Put(Bytes.toBytes(stringBuilder.toString()));
             stringBuilder.delete(0, stringBuilder.length());
 
             // 为 callee 属性赋值!
-            callee.setValue(stringBuilder.append(split[2]).append("\t").append(split[1]).append("\t").append(split[3]).
+            callee.setValue(stringBuilder.append(split[3]).append("\t").append(split[2]).append("\t").append(split[1]).
                     append("\t").append(split[4]).toString());
             stringBuilder.delete(0, stringBuilder.length());
 

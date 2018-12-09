@@ -68,6 +68,7 @@ public class Calllog extends AbstractHbaseBean implements Val<String> {
      *
      * @param s 需要存储的数据
      */
+    @SuppressWarnings("Duplicates")
     @Override
     public void setValue(String s) {
         String[] split = s.split("\t");
@@ -84,6 +85,6 @@ public class Calllog extends AbstractHbaseBean implements Val<String> {
      */
     @Override
     public String getRowKey() {
-        return this.regionNum + "_" + this.call1 + "_" + this.call2 + "_" + this.calltime + "_" + this.duration + "_" + this.flg;
+        return this.regionNum + "_" + this.call1 + "_" + this.calltime + "_" + this.call2 + "_" + this.duration + "_" + this.flg;
     }
 }

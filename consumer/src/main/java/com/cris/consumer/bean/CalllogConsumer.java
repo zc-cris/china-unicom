@@ -4,7 +4,9 @@ import com.cris.bean.AbstractConsumer;
 import com.cris.constant.Names;
 import com.cris.consumer.dao.HbaseDao;
 import lombok.NoArgsConstructor;
-import org.apache.kafka.clients.consumer.*;
+import org.apache.kafka.clients.consumer.ConsumerRecord;
+import org.apache.kafka.clients.consumer.ConsumerRecords;
+import org.apache.kafka.clients.consumer.KafkaConsumer;
 
 import java.io.IOException;
 import java.util.Arrays;
@@ -38,6 +40,8 @@ public class CalllogConsumer extends AbstractConsumer {
         Calllog calllog = new Calllog();
         /*被叫记录*/
         Callee callee = new Callee();
+        // 控制插入数据的条数
+        int count = 0;
 
         try {
             // 通过应用类加载器来读取配置文件
@@ -56,6 +60,11 @@ public class CalllogConsumer extends AbstractConsumer {
                     // 通过 HBaseDao 来往 HBase 插入数据
                     System.out.println("record.value() = " + record.value());
                     hbaseDao.insertValue(record.value());
+
+                    /*测试 100 条数据即可*/
+                    if (++count == 100) {
+                        flag = false;
+                    }
 
                     /// 通过使用注解的方法向 HBase 表插入数据，更加方便通用
 //                    String value = record.value();

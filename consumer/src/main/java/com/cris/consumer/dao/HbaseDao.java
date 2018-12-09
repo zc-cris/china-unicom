@@ -9,10 +9,7 @@ import com.cris.consumer.bean.Callee;
 import com.cris.consumer.bean.Calllog;
 import com.cris.dao.BaseDao;
 import org.apache.commons.lang.StringUtils;
-import org.apache.hadoop.hbase.HColumnDescriptor;
-import org.apache.hadoop.hbase.HTableDescriptor;
-import org.apache.hadoop.hbase.NamespaceDescriptor;
-import org.apache.hadoop.hbase.TableName;
+import org.apache.hadoop.hbase.*;
 import org.apache.hadoop.hbase.client.*;
 import org.apache.hadoop.hbase.util.Bytes;
 
@@ -20,7 +17,10 @@ import java.io.IOException;
 import java.lang.reflect.Field;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.List;
+import java.util.Optional;
 
 /**
  * 专门和 HBase 交互的 dao
@@ -136,6 +136,9 @@ public class HbaseDao extends BaseDao {
             /*如果命名空间不存在将会抛出 NamespaceNotFoundException */
             NamespaceDescriptor namespaceDescriptor = admin.getNamespaceDescriptor(nameSpace);
             return true;
+        } catch (NamespaceNotFoundException e) {
+            e.printStackTrace();
+            return false;
         } catch (IOException e) {
             e.printStackTrace();
             return false;
@@ -425,8 +428,8 @@ public class HbaseDao extends BaseDao {
          *   - 字符串反转：时间戳和电话号码；电话号码最后四位才是用户的编码（没有规律）
          *   - 计算分区号
          * */
-        // 我们这里的 rowkey 格式应该为：regionNum（分区号） + call1+call2+calltime+duration（实际开发中以实际业务需求为准设计 rowkey）
-        /*分区号的设计是让有共同规律的数据进入同一个分区，实现有规律的存储和提高查询效率*/
+        // 我们这里的 rowkey 格式应该为：regionNum（分区号） + call1+calltime+call2+duration（实际开发中以实际业务需求为准设计 rowkey）
+        /*分区号的设计是让有共同规律的数据进入同一个分区，实现有规律的存储和提高查询效率,增加数据存储的随机性，避免热点数据和热点分区*/
         int rowkey = genRegionNum(strings[0], strings[2]);
 
         String call1 = strings[0];
@@ -435,7 +438,7 @@ public class HbaseDao extends BaseDao {
         String duration = strings[3];
 
         // rowkey
-        Put put = new Put(Bytes.toBytes(rowkey + "_" + call1 + "_" + call2 + "_" + calltime + "_" + duration+"_1"));
+        Put put = new Put(Bytes.toBytes(rowkey + "_" + call1 + "_" + calltime + "_" + call2 + "_" + duration + "_1"));
         // 列族
         byte[] family = Bytes.toBytes(Names.CF_CALLER.getValue());
         // 列（名字和值）

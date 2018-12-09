@@ -72,4 +72,29 @@ public class DatetimeUtil {
 
     }
 
+    /**
+     * 多个字符串根据分隔符进行拼接的小工具
+     *
+     * @author cris
+     * @version 1.0
+     **/
+    public static class StringTool {
+
+        public static String packString(StringBuilder stringBuilder, String separator, String... strings) {
+            if (strings == null || strings.length == 0 || stringBuilder == null || separator == null) {
+                throw new IllegalArgumentException();
+            }
+            for (int i = 0; i < strings.length; i++) {
+                if (i == strings.length - 1) {
+                    stringBuilder.append(strings[i]);
+                } else {
+                    stringBuilder.append(strings[i]).append(separator);
+                }
+            }
+            String result = stringBuilder.toString();
+            stringBuilder.delete(0, stringBuilder.length());
+            return result;
+        }
+
+    }
 }
